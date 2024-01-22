@@ -2,26 +2,59 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import permissions
+from django.db import connection
 from .models import ImportBookAuthors, ImportBooks
 from .serializers import AuthorSerializer, BookSerializer
 
 
 class SearchAuthor(APIView):
+
     def get(self, request):
-        authors = ImportBookAuthors.objects.filter(name__icontains=request.GET.get('query'))[:10]
-        # authors = ImportBookAuthors.objects.raw(
-        #     """
-        #     SELECT *
-        #     FROM IMPORT_BOOK_AUTHORS
-        #     LIMIT 10;
-        #     --WHERE NAME LIKE %s
-        #     """#,
-        #     #[request.GET.get('query')]
-        # )
-        # print('==============================')
-        # print(request.GET.get('query'))
-        # print('===============================')
+
+        authors = ImportBookAuthors.objects.filter(name__icontains=request.GET.get('query')).order_by('-ratings_count')[:10]
         serializer = AuthorSerializer(authors, many = True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+class AuthorDetails(APIView):
+
+    def get(self, request, author_id: int):
+
+        # with connection.cursor() as cursor:
+        #     cursor.execute(
+        #         f"""
+        #         SELECT *
+        #         FROM IMPORT_AUTHORS
+        #         INNER JOIN IMPORT_BOOKS
+        #         WHERE AUTHOR_ID = '{author_id}'
+        #         """
+        #     )
+
+        books = ImportBooks.objects.raw(
+            f"""
+            SELECT *
+            FROM IMPORT_AUTHORS
+            INNER JOIN IMPORT_BOOKS
+            USING(BOOK_ID)
+            WHERE AUTHOR_ID = '{author_id}'
+            AND LANGUAGE_CODE LIKE 'eng'
+            ORDER BY RATINGS_COUNT DESC
+            LIMIT 10
+            """
+        )
+        serializer = BookSerializer(books, many = True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+class SearchBook(APIView):
+
+    def get(self, request):
+
+        books = ImportBooks.objects.filter(title__icontains=request.GET.get('query')).order_by('-ratings_count')[:10]
+        serializer = BookSerializer(books, many = True)
+
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

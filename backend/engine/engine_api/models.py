@@ -63,7 +63,7 @@ class BuildWorks(models.Model):
 
 
 class ImportAuthors(models.Model):
-    author_id = models.TextField(blank=True, null=True)
+    author_id = models.IntegerField(blank=True, null=True)
     role = models.TextField(blank=True, null=True)
     book_id = models.IntegerField(blank=True, null=True)
 
@@ -73,8 +73,8 @@ class ImportAuthors(models.Model):
 
 
 class ImportBookAuthors(models.Model):
-    average_rating = models.FloatField(blank=True, null=False, primary_key=True)
-    author_id = models.IntegerField(blank=True, null=True)
+    average_rating = models.FloatField(blank=True, null=True)
+    author_id = models.IntegerField(blank=True, null=False, primary_key=True)
     text_reviews_count = models.IntegerField(blank=True, null=True)
     name = models.TextField(blank=True, null=True)
     ratings_count = models.IntegerField(blank=True, null=True)
@@ -121,7 +121,7 @@ class ImportBooks(models.Model):
     image_url = models.TextField(blank=True, null=True)
     book_id = models.TextField(blank=True, null=True)
     ratings_count = models.TextField(blank=True, null=True)
-    work_id = models.TextField(blank=True, null=True)
+    work_id = models.TextField(blank=True, null=False, primary_key=True)
     title = models.TextField(blank=True, null=True)
     title_without_series = models.TextField(blank=True, null=True)
 

@@ -17,9 +17,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from .views import (
-    SearchAuthor
+    SearchAuthor,
+    AuthorDetails,
+    SearchBook,
 )
 
 urlpatterns = [
     path('author/search', SearchAuthor.as_view()),
+    path('author/details/<int:author_id>', AuthorDetails.as_view()),
+    path('book/search', SearchBook.as_view()),
 ]
