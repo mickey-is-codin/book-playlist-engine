@@ -5,12 +5,27 @@ from rest_framework import permissions
 from .models import ImportBookAuthors, ImportBooks
 from .serializers import AuthorSerializer, BookSerializer
 
+
+class SearchAuthor(APIView):
+    def get(self, request):
+        authors = ImportBookAuthors.objects.raw(
+            """
+            SELECT *
+            FROM IMPORT_BOOK_AUTHORS
+            WHERE NAME LIKE %s
+            """,
+            [request.GET.get('query')]
+        )
+        serializer = AuthorSerializer(authors, many = True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class AuthorListApiView(APIView):
     # add permission to check if user is authenticated
     # permission_classes = [permissions.IsAuthenticated]
 
     # 1. List all
-    def get(self, request, *args, **kwargs):
+    def get(self, request, name, *args, **kwargs):
         '''
         List all the todo items for given requested user
         '''
@@ -20,11 +35,12 @@ class AuthorListApiView(APIView):
             FROM IMPORT_BOOK_AUTHORS
             WHERE NAME LIKE %s
             """,
-            [request]
+            [name]
         )
         serializer = AuthorSerializer(authors, many = True)
-        # print('-------------------------------------------PRINTING AUTHORS')
-        # print(serializer)
+        print("==============PRINTING==============")
+        print(serializer)
+        print("====================================")
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     # 2. Create

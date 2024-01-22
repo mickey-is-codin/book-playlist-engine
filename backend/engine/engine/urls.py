@@ -21,5 +21,5 @@ from engine_api import urls as engine_urls
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
-    path('engines/', include(engine_urls)),
+    path('engine_api/', include(engine_urls)),
 ]

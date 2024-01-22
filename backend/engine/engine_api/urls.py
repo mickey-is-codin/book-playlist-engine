@@ -17,9 +17,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from .views import (
-    AuthorListApiView,
+    SearchAuthor
 )
 
 urlpatterns = [
-    path('api', AuthorListApiView.as_view()),
+    path('author/search', SearchAuthor.as_view()),
 ]

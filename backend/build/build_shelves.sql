@@ -1,0 +1,31 @@
+CREATE TABLE BUILD_SHELVES AS
+    WITH A AS (
+        SELECT DISTINCT
+            CAST(COUNT AS FLOAT) AS COUNT,
+            CAST(WORK_ID AS INT) AS WORK_ID,
+            NAME AS TAG_NAME
+        FROM IMPORT_SHELVES
+    ),
+    B AS (
+        SELECT 
+            TAG_NAME,
+            SUM(COUNT) AS TAG_COUNT,
+            SUM(COUNT * COUNT) AS TAG_COUNT_SQUARED,
+            COUNT(DISTINCT WORK_ID) AS TAG_WORK
+        FROM A
+        GROUP BY TAG_NAME
+    ),
+    C AS (
+        SELECT
+            WORK_ID,
+            SUM(COUNT) AS WORK_COUNT,
+            SUM(COUNT * COUNT) AS WORK_COUNT_SQUARED
+        FROM A
+        GROUP BY WORK_ID
+    )
+    SELECT *
+    FROM A
+    INNER JOIN B
+    USING(TAG_NAME)
+    INNER JOIN C
+    USING(WORK_ID);

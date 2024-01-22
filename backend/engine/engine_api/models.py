@@ -73,7 +73,7 @@ class ImportAuthors(models.Model):
 
 
 class ImportBookAuthors(models.Model):
-    average_rating = models.FloatField(blank=True, null=True)
+    average_rating = models.FloatField(blank=True, null=False, primary_key=True)
     author_id = models.IntegerField(blank=True, null=True)
     text_reviews_count = models.IntegerField(blank=True, null=True)
     name = models.TextField(blank=True, null=True)
