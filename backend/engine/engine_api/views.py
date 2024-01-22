@@ -8,14 +8,19 @@ from .serializers import AuthorSerializer, BookSerializer
 
 class SearchAuthor(APIView):
     def get(self, request):
-        authors = ImportBookAuthors.objects.raw(
-            """
-            SELECT *
-            FROM IMPORT_BOOK_AUTHORS
-            WHERE NAME LIKE %s
-            """,
-            [request.GET.get('query')]
-        )
+        authors = ImportBookAuthors.objects.filter(name__icontains=request.GET.get('query'))[:10]
+        # authors = ImportBookAuthors.objects.raw(
+        #     """
+        #     SELECT *
+        #     FROM IMPORT_BOOK_AUTHORS
+        #     LIMIT 10;
+        #     --WHERE NAME LIKE %s
+        #     """#,
+        #     #[request.GET.get('query')]
+        # )
+        # print('==============================')
+        # print(request.GET.get('query'))
+        # print('===============================')
         serializer = AuthorSerializer(authors, many = True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
