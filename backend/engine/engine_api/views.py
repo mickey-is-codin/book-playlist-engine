@@ -3,8 +3,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import permissions
 from django.db import connection
-from .models import ImportBookAuthors, ImportBooks
-from .serializers import AuthorSerializer, BookSerializer
+from .models import ImportBookAuthors, ImportBooks, BuildWork
+from .serializers import AuthorSerializer, BookSerializer, WorkSerializer
 
 
 class SearchAuthor(APIView):
@@ -31,19 +31,17 @@ class AuthorDetails(APIView):
         #         """
         #     )
 
-        books = ImportBooks.objects.raw(
+        works = BuildWork.objects.raw(
             f"""
             SELECT *
-            FROM IMPORT_AUTHORS
-            INNER JOIN IMPORT_BOOKS
-            USING(BOOK_ID)
+            FROM BUILD_WORK
             WHERE AUTHOR_ID = '{author_id}'
-            AND LANGUAGE_CODE LIKE 'eng'
-            ORDER BY RATINGS_COUNT DESC
+            AND LANGUAGE_CODE LIKE '%eng%'
+            ORDER BY BOOK_RATINGS_COUNT DESC
             LIMIT 10
             """
         )
-        serializer = BookSerializer(books, many = True)
+        serializer = WorkSerializer(works, many = True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
     
@@ -56,44 +54,34 @@ class SearchBook(APIView):
         serializer = BookSerializer(books, many = True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
 
+class BookDetails(APIView):
 
-class AuthorListApiView(APIView):
-    # add permission to check if user is authenticated
-    # permission_classes = [permissions.IsAuthenticated]
+    def get(self, request, work_id: int):
 
-    # 1. List all
-    def get(self, request, name, *args, **kwargs):
-        '''
-        List all the todo items for given requested user
-        '''
-        authors = ImportBookAuthors.objects.raw(
-            """
+        # with connection.cursor() as cursor:
+        #     cursor.execute(
+        #         f"""
+        #         SELECT *
+        #         FROM IMPORT_AUTHORS
+        #         INNER JOIN IMPORT_BOOKS
+        #         WHERE AUTHOR_ID = '{author_id}'
+        #         """
+        #     )
+
+        # TODO: Figure out if we want to have multiple get requests to get similar books here??
+
+        works = BuildWork.objects.raw(
+            f"""
             SELECT *
-            FROM IMPORT_BOOK_AUTHORS
-            WHERE NAME LIKE %s
-            """,
-            [name]
+            FROM BUILD_WORK
+            WHERE WORK_ID = '{work_id}'
+            AND LANGUAGE_CODE LIKE '%eng%'
+            ORDER BY BOOK_RATINGS_COUNT DESC
+            LIMIT 10
+            """
         )
-        serializer = AuthorSerializer(authors, many = True)
-        print("==============PRINTING==============")
-        print(serializer)
-        print("====================================")
+        serializer = WorkSerializer(works, many = True)
+
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-    # 2. Create
-    # def post(self, request, *args, **kwargs):
-    #     '''
-    #     Create the Todo with given todo data
-    #     '''
-    #     data = {
-    #         'task': request.data.get('task'), 
-    #         'completed': request.data.get('completed'), 
-    #         'user': request.user.id
-    #     }
-    #     serializer = TodoSerializer(data=data)
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
