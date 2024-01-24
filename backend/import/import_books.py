@@ -62,7 +62,7 @@ def main():
                 if_exists = 'append'
             )
             
-            print(f'chunk {counter}/25 complete')
+            print(f'chunk {counter}/236 complete')
             counter += 1
 
 
